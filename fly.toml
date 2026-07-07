@@ -1,0 +1,20 @@
+app = "your-unique-qwenpaw-app"
+primary_region = "iad" # Replace with your preferred Fly region (e.g., sfo, ams, hkg)
+
+[build]
+
+[http_service]
+  internal_port = 8088
+  force_https = true
+  auto_stop_machines = 'off' # Keeps the agent alive for cron/background processes
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[mounts]]
+  source = "qwenpaw_data"
+  destination = "/data"
+
+[vm]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 2048 # Recommended min memory for stable runtime environment

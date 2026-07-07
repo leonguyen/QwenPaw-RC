@@ -1,28 +1,16 @@
-FROM python:3.11-slim
+FROM agentscope/qwenpaw:latest
 
-# Install system dependencies and curl
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Expose the default web UI port used by QwenPaw
+EXPOSE 8088
 
-# Install uv for fast package management (recommended by AgentScope)
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh
-ENV PATH="/root/.local/bin/:$PATH"
+# Create a single root mount point for our Fly Volume to easily attach to
+RUN mkdir -p /data/working /data/secret /data/backups
 
-WORKDIR /app
-
-# Install QwenPaw 
-RUN uv pip install --system qwenpaw agentscope
-
-# Copy your configuration files if you have any pre-configured locally
-COPY . /app
-
-# Render passes the PORT environment variable. We tell QwenPaw to bind to it.
-# If QwenPaw natively looks for a flag, we inject $PORT. 
-EXPOSE 10000
-
-# Start command: Replace `--port` with QwenPaw's actual server flag if it differs
-CMD ["sh", "-c", "qwenpaw start --host 0.0.0.0 --port ${PORT:-10000}"]
+# Override the execution command to point QwenPaw's internal storage paths to our persistent volume
+CMD ["qwenpaw", "start", \
+     "--port", "8088", \
+     "--host", "0.0.0.0", \
+     "--workspace", "/data/working", \
+     "--secret-dir", "/data/secret", \
+     "--backup-dir", "/data/backups"]
 
