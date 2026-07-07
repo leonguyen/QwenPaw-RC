@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: qwenpaw-assistant
+    runtime: docker
+    repo: https://github.com/agentscope-ai/QwenPaw # Or your own forked repository
+    plan: starter                                 # Recommended: Agent frameworks need decent RAM
+    region: oregon                                # Choose closest to your LLM provider
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DASHSCOPE_API_KEY
+        sync: false                               # Set this securely in the Render Dashboard
+      - key: OPENAI_API_KEY
+        sync: false                               # Set this if using OpenAI models
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    disk:
+      name: qwenpaw-memory
+      mountPath: /root/.qwenpaw                  # Persists AgentScope long-term memory & skills
+      sizeGB: 10
+
